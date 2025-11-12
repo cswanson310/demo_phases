@@ -49,10 +49,12 @@ cc_library(
     includes = ["include"],
     deps = [
         ":parse_node",
+        ":ast_node",  # Needed for createAstNode() implementation
+        ":ast_nodes_impl",  # Needed for the template specialization
         ":foo_ast_params",
     ],
     visibility = ["//visibility:public"],
-    # alwayslink no longer needed with concept-based design
+    # alwayslink needed for runtime registration
     alwayslink = 1,
 )
 
@@ -90,6 +92,19 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+# Node transformer library - bridges parse_node and ast_node
+cc_library(
+    name = "node_transformer",
+    srcs = ["src/node_transformer.cpp"],
+    hdrs = ["include/node_transformer.h"],
+    includes = ["include"],
+    deps = [
+        ":parse_node",
+        ":ast_node",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "logical_nodes_impl",
     srcs = ["src/logical_nodes/foo_logical_node.cpp"],
@@ -110,6 +125,7 @@ cc_binary(
         ":parse_nodes_impl",
         ":ast_nodes_impl",
         ":logical_nodes_impl",
+        ":node_transformer",
     ],
 )
 

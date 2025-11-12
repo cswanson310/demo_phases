@@ -3,38 +3,37 @@
 #include "parse_node.h"
 #include "ast_node.h"
 #include "logical_node.h"
+#include "node_transformer.h"
+#include "src/ast_nodes/foo_ast_node.h"  // Include AST node BEFORE parse node
 #include "src/parse_nodes/foo_node.h"
-#include "src/ast_nodes/foo_ast_node.h"
 
 int main() {
     std::cout << "=== Concept-Based Node Pipeline Demo ===" << std::endl << std::endl;
     
     std::cout << "2 + 2 = " << add(2, 2) << std::endl << std::endl;
     
-    // Step 1: Create a parse node with type-specific params
-    std::cout << "Step 1: Creating parse node" << std::endl;
-    auto myParseNode = parse_node::createFromInput("my_input_data", "arg1");
+    // Step 1: Create a parse node polymorphically (from string input)
+    std::cout << "Step 1: Creating parse node from input" << std::endl;
+    auto myParseNode = parse_node::createFromInput("foo", "my_input_data");
     std::cout << "Parse shape: " << myParseNode->get_shape() << std::endl;
     
-    // Step 2: Get type-specific AST params from parse node
-    std::cout << "\nStep 2: Getting AST params from parse node" << std::endl;
-    auto astParams = myParseNode->astParams();
-    std::cout << "AST params: nodeType=" << astParams.nodeType 
-              << ", fooData=" << astParams.fooSpecificData << std::endl;
-    
-    // Step 3: Create AST node using template specialization
-    std::cout << "\nStep 3: Creating AST node from params" << std::endl;
-    auto myAstNode = ast_node::create<FooAstParams>(astParams);
+    // Step 2: Transform parse node to AST node using the transformer library
+    std::cout << "\nStep 2: Transforming parse node to AST node (via transformer)" << std::endl;
+    auto myAstNode = node_transformer::parseToAst(myParseNode);
     std::cout << "AST debug name: " << myAstNode->debugName() << std::endl;
     
-    // Step 4: Create logical node (using the old system for now)
-    std::cout << "\nStep 4: Creating logical node" << std::endl;
+    // Step 3: Create logical node
+    std::cout << "\nStep 3: Creating logical node" << std::endl;
     auto logicalParams = static_cast<FooAstNode*>(myAstNode.get())->logicalParams();
     auto myLogicalNode = logical_node::create(logicalParams);
     std::cout << "Logical debug name: " << myLogicalNode->debugName() << std::endl;
     std::cout << "\n" << myLogicalNode->explain() << std::endl;
     
     std::cout << "\n=== Pipeline Complete ===" << std::endl;
+    std::cout << "\nDemonstration:" << std::endl;
+    std::cout << "- Parse node was created from string input \"foo\"" << std::endl;
+    std::cout << "- node_transformer::parseToAst() handled the type-specific conversion" << std::endl;
+    std::cout << "- Each node type manages its own parameter types internally" << std::endl;
     
     return 0;
 }

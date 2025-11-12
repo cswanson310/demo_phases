@@ -4,7 +4,7 @@
 #include <memory>
 #include <concepts>
 
-// Forward declarations for concepts
+// Forward declarations
 namespace ast_node {
     struct Node;
 }
@@ -32,6 +32,10 @@ concept ParseNodeType = requires(const T& node) {
 struct Node {
     virtual ~Node() = default;
     virtual std::string get_shape() const = 0;
+    
+    // Virtual method to create the corresponding AST node
+    // Each concrete parse node implements this using its specific param type
+    virtual std::unique_ptr<ast_node::Node> createAstNode() const = 0;
 };
 
 // CRTP base class for parse nodes with type-safe params
@@ -43,9 +47,8 @@ struct TypedNode : Node {
     // Derived must implement this
     virtual ParamType astParams() const = 0;
     
-    // Helper to create AST node from this parse node's params
-    // This will be specialized per node type
-    std::unique_ptr<ast_node::Node> createAstNode() const;
+    // createAstNode() is inherited from Node base class
+    // Derived classes should override it
 };
 
 // Factory registration for polymorphic usage
