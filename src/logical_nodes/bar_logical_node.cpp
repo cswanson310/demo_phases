@@ -2,8 +2,6 @@
 #include "logical_node.h"
 #include <memory>
 
-// Register the bar logical node factory at startup
-REGISTER_LOGICAL_NODE(bar, [](const std::string& nodeType, const std::string& optimizationHint) {
-    return std::make_unique<BarLogicalNode>(nodeType, optimizationHint);
-});
+// The create<BarLogicalParams> specialization is already in the header
+// No static registration needed since we use template specialization
 

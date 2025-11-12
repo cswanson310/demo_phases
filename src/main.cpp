@@ -4,6 +4,7 @@
 #include "ast_node.h"
 #include "logical_node.h"
 #include "node_transformer.h"
+#include "ast_to_logical_transformer.h"
 #include "src/ast_nodes/foo_ast_node.h"
 #include "src/ast_nodes/bar_ast_node.h"
 #include "src/parse_nodes/foo_node.h"
@@ -24,10 +25,9 @@ void processNode(const std::string& nodeType, const std::string& inputData) {
     auto astNode = node_transformer::parseToAst(parseNode);
     std::cout << "    " << astNode->debugName() << std::endl;
     
-    // Step 3: Create logical node
-    std::cout << "\n[3] Creating logical node" << std::endl;
-    auto logicalParams = astNode->logicalParams();
-    auto logicalNode = logical_node::create(logicalParams);
+    // Step 3: Transform to logical node using the AST→Logical transformer
+    std::cout << "\n[3] Transforming to logical node (via ast_to_logical_transformer)" << std::endl;
+    auto logicalNode = ast_to_logical_transformer::astToLogical(astNode);
     std::cout << "    " << logicalNode->debugName() << std::endl;
     
     // Step 4: Show execution plan
@@ -53,10 +53,12 @@ int main() {
     std::cout << "========================================" << std::endl;
     std::cout << "\n✅ Both node types processed successfully!" << std::endl;
     std::cout << "\nKey observations:" << std::endl;
-    std::cout << "  • FooNode uses FooAstParams with int fooSpecificData" << std::endl;
-    std::cout << "  • BarNode uses BarAstParams with vector, bool, and double" << std::endl;
-    std::cout << "  • Each node type has completely different fields" << std::endl;
-    std::cout << "  • node_transformer works with both types polymorphically" << std::endl;
+    std::cout << "  • FooNode: FooAstParams (int) → FooLogicalParams (costMultiplier)" << std::endl;
+    std::cout << "  • BarNode: BarAstParams (vector, bool, double) → BarLogicalParams (canUseIndex, rows, selectivity)" << std::endl;
+    std::cout << "  • Each node type has completely different AST AND Logical parameters" << std::endl;
+    std::cout << "  • Type-specific params at every phase: Parse → AST → Logical" << std::endl;
+    std::cout << "  • node_transformer handles Parse→AST polymorphically" << std::endl;
+    std::cout << "  • ast_to_logical_transformer handles AST→Logical polymorphically" << std::endl;
     std::cout << "  • Type-specific logic is preserved throughout the pipeline" << std::endl;
     std::cout << "  • No runtime type checks or casts needed!" << std::endl;
     

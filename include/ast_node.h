@@ -21,7 +21,10 @@ concept LogicalParamType = std::default_initializable<T> && std::copyable<T>;
 struct Node {
     virtual ~Node() = default;
     virtual std::string debugName() const = 0;
-    virtual LogicalParams logicalParams() const = 0;
+    
+    // Virtual method to create the corresponding logical node
+    // Each concrete AST node implements this using its type-specific logical params
+    virtual std::unique_ptr<logical_node::Node> createLogicalNode() const = 0;
 };
 
 // CRTP base class for AST nodes with type-safe params (optional, for more type safety)

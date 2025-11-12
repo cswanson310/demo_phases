@@ -30,6 +30,22 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+# Foo-specific logical parameters
+cc_library(
+    name = "foo_logical_params",
+    hdrs = ["src/logical_params/foo_logical_params.h"],
+    strip_include_prefix = "src/logical_params",
+    visibility = ["//visibility:public"],
+)
+
+# Bar-specific logical parameters
+cc_library(
+    name = "bar_logical_params",
+    hdrs = ["src/logical_params/bar_logical_params.h"],
+    strip_include_prefix = "src/logical_params",
+    visibility = ["//visibility:public"],
+)
+
 # Library target
 cc_library(
     name = "toy_lib",
@@ -108,7 +124,10 @@ cc_library(
     includes = ["include"],
     deps = [
         ":ast_node",
+        ":logical_node",  # Needed for createLogicalNode() implementation
         ":foo_ast_params",
+        ":foo_logical_params",  # Needed for logicalParams() return type
+        ":foo_logical_nodes",  # Needed for the template specialization in .cpp
     ],
     visibility = ["//visibility:public"],
     alwayslink = 1,
@@ -121,7 +140,10 @@ cc_library(
     includes = ["include"],
     deps = [
         ":ast_node",
+        ":logical_node",  # Needed for createLogicalNode() implementation
         ":bar_ast_params",
+        ":bar_logical_params",  # Needed for logicalParams() return type
+        ":bar_logical_nodes",  # Needed for the template specialization in .cpp
     ],
     visibility = ["//visibility:public"],
     alwayslink = 1,
@@ -159,12 +181,28 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+# AST to logical transformer library - bridges ast_node and logical_node
+cc_library(
+    name = "ast_to_logical_transformer",
+    srcs = ["src/ast_to_logical_transformer.cpp"],
+    hdrs = ["include/ast_to_logical_transformer.h"],
+    includes = ["include"],
+    deps = [
+        ":ast_node",
+        ":logical_node",
+    ],
+    visibility = ["//visibility:public"],
+)
+
 cc_library(
     name = "foo_logical_nodes",
     srcs = ["src/logical_nodes/foo_logical_node.cpp"],
     hdrs = ["src/logical_nodes/foo_logical_node.h"],
     includes = ["include"],
-    deps = [":logical_node"],
+    deps = [
+        ":logical_node",
+        ":foo_logical_params",
+    ],
     visibility = ["//visibility:public"],
     alwayslink = 1,
 )
@@ -174,7 +212,10 @@ cc_library(
     srcs = ["src/logical_nodes/bar_logical_node.cpp"],
     hdrs = ["src/logical_nodes/bar_logical_node.h"],
     includes = ["include"],
-    deps = [":logical_node"],
+    deps = [
+        ":logical_node",
+        ":bar_logical_params",
+    ],
     visibility = ["//visibility:public"],
     alwayslink = 1,
 )
@@ -199,6 +240,7 @@ cc_binary(
         ":ast_nodes_impl",
         ":logical_nodes_impl",
         ":node_transformer",
+        ":ast_to_logical_transformer",
     ],
 )
 

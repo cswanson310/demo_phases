@@ -1,38 +1,41 @@
+#pragma once
 #include <string>
 #include <functional>
 #include <memory>
-#include "logical_params.h"
-
-#pragma once
+#include <concepts>
 
 namespace logical_node {
 
+// Concept for parameter types that can create logical nodes
+template<typename T>
+concept LogicalParamType = std::default_initializable<T> && std::copyable<T>;
+
 struct Node {
-    virtual ~Node() {}
+    virtual ~Node() = default;
     virtual std::string debugName() const = 0;
     virtual std::string explain() const = 0;  // Like EXPLAIN in SQL
 };
 
-// Factory function signature: takes AST node params -> creates Logical node
-using Factory = std::function<std::unique_ptr<Node>(const std::string& nodeType, const std::string& optimizationHint)>;
+// Generic create function that can work with any param type
+// This is a template that will be specialized for each param type
+template<typename ParamType>
+std::unique_ptr<Node> create(const ParamType& params);
 
-// Register a logical node factory for a given type
-void registerNode(std::string name, Factory factory);
+// Registration system (for runtime polymorphism if needed)
+template<typename ParamType>
+using Factory = std::function<std::unique_ptr<Node>(const ParamType&)>;
 
-// Create a logical node from AST node parameters
-std::unique_ptr<Node> create(const LogicalParams& params);
+template<typename ParamType>
+void registerNode(std::string name, Factory<ParamType> factory);
 
-// Helper class for automatic registration at startup
+// Helper class for automatic registration
+template<typename ParamType>
 class NodeRegistrar {
 public:
-    NodeRegistrar(std::string name, Factory factory) {
-        registerNode(name, factory);
-    }
+    NodeRegistrar(std::string name, Factory<ParamType> factory);
 };
 
-// Macro to make registration easier
-#define REGISTER_LOGICAL_NODE(name, factory) \
-    static ::logical_node::NodeRegistrar _logical_registrar_##name(#name, factory)
+#define REGISTER_LOGICAL_NODE_TYPED(name, ParamType, factory) \
+    static ::logical_node::NodeRegistrar<ParamType> _logical_registrar_##name(#name, factory)
 
-}
-
+} // namespace logical_node
