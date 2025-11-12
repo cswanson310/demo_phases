@@ -23,6 +23,13 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
+cc_library(
+    name = "bar_ast_params",
+    hdrs = ["src/ast_params/bar_ast_params.h"],
+    strip_include_prefix = "src/ast_params",
+    visibility = ["//visibility:public"],
+)
+
 # Library target
 cc_library(
     name = "toy_lib",
@@ -43,19 +50,44 @@ cc_library(
 )
 
 cc_library(
-    name = "parse_nodes_impl",
+    name = "foo_parse_node",
     srcs = ["src/parse_nodes/foo_node.cpp"],
     hdrs = ["src/parse_nodes/foo_node.h"],
     includes = ["include"],
     deps = [
         ":parse_node",
         ":ast_node",  # Needed for createAstNode() implementation
-        ":ast_nodes_impl",  # Needed for the template specialization
+        ":foo_ast_nodes",  # Needed for the template specialization
         ":foo_ast_params",
     ],
     visibility = ["//visibility:public"],
     # alwayslink needed for runtime registration
     alwayslink = 1,
+)
+
+cc_library(
+    name = "bar_parse_node",
+    srcs = ["src/parse_nodes/bar_node.cpp"],
+    hdrs = ["src/parse_nodes/bar_node.h"],
+    includes = ["include"],
+    deps = [
+        ":parse_node",
+        ":ast_node",
+        ":bar_ast_nodes",
+        ":bar_ast_params",
+    ],
+    visibility = ["//visibility:public"],
+    alwayslink = 1,
+)
+
+# Combined parse nodes implementation
+cc_library(
+    name = "parse_nodes_impl",
+    deps = [
+        ":foo_parse_node",
+        ":bar_parse_node",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(
@@ -70,7 +102,7 @@ cc_library(
 )
 
 cc_library(
-    name = "ast_nodes_impl",
+    name = "foo_ast_nodes",
     srcs = ["src/ast_nodes/foo_ast_node.cpp"],
     hdrs = ["src/ast_nodes/foo_ast_node.h"],
     includes = ["include"],
@@ -79,8 +111,30 @@ cc_library(
         ":foo_ast_params",
     ],
     visibility = ["//visibility:public"],
-    # Template specialization doesn't require alwayslink
     alwayslink = 1,
+)
+
+cc_library(
+    name = "bar_ast_nodes",
+    srcs = ["src/ast_nodes/bar_ast_node.cpp"],
+    hdrs = ["src/ast_nodes/bar_ast_node.h"],
+    includes = ["include"],
+    deps = [
+        ":ast_node",
+        ":bar_ast_params",
+    ],
+    visibility = ["//visibility:public"],
+    alwayslink = 1,
+)
+
+# Combined AST nodes implementation
+cc_library(
+    name = "ast_nodes_impl",
+    deps = [
+        ":foo_ast_nodes",
+        ":bar_ast_nodes",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(
@@ -106,14 +160,33 @@ cc_library(
 )
 
 cc_library(
-    name = "logical_nodes_impl",
+    name = "foo_logical_nodes",
     srcs = ["src/logical_nodes/foo_logical_node.cpp"],
     hdrs = ["src/logical_nodes/foo_logical_node.h"],
     includes = ["include"],
     deps = [":logical_node"],
     visibility = ["//visibility:public"],
-    # Force linking to ensure static registration runs
     alwayslink = 1,
+)
+
+cc_library(
+    name = "bar_logical_nodes",
+    srcs = ["src/logical_nodes/bar_logical_node.cpp"],
+    hdrs = ["src/logical_nodes/bar_logical_node.h"],
+    includes = ["include"],
+    deps = [":logical_node"],
+    visibility = ["//visibility:public"],
+    alwayslink = 1,
+)
+
+# Combined logical nodes implementation
+cc_library(
+    name = "logical_nodes_impl",
+    deps = [
+        ":foo_logical_nodes",
+        ":bar_logical_nodes",
+    ],
+    visibility = ["//visibility:public"],
 )
 
 # Main application
