@@ -1,0 +1,10 @@
+"""Toy C++ project module."""
+
+module(
+    name = "toy_cpp",
+    version = "0.1",
+)
+
+# GoogleTest dependency
+bazel_dep(name = "googletest", version = "1.15.2")
+

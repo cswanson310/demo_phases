@@ -1,0 +1,125 @@
+"""Root BUILD file for toy_cpp."""
+
+# Parameter struct libraries (pure headers, no dependencies)
+cc_library(
+    name = "ast_params",
+    hdrs = ["include/ast_params.h"],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "logical_params",
+    hdrs = ["include/logical_params.h"],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+
+# Node-specific parameter libraries
+cc_library(
+    name = "foo_ast_params",
+    hdrs = ["src/ast_params/foo_ast_params.h"],
+    strip_include_prefix = "src/ast_params",
+    visibility = ["//visibility:public"],
+)
+
+# Library target
+cc_library(
+    name = "toy_lib",
+    srcs = ["src/lib.cpp"],
+    hdrs = ["include/lib.h"],
+    includes = ["include"],
+    deps = [":parse_node", ":ast_node"],
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "parse_node",
+    srcs = ["src/parse_node.cpp"],
+    hdrs = ["include/parse_node.h"],
+    includes = ["include"],
+    deps = [],  # Now uses concepts, forward declarations only
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "parse_nodes_impl",
+    srcs = ["src/parse_nodes/foo_node.cpp"],
+    hdrs = ["src/parse_nodes/foo_node.h"],
+    includes = ["include"],
+    deps = [
+        ":parse_node",
+        ":foo_ast_params",
+    ],
+    visibility = ["//visibility:public"],
+    # alwayslink no longer needed with concept-based design
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "ast_node",
+    srcs = ["src/ast_node.cpp"],
+    hdrs = ["include/ast_node.h"],
+    includes = ["include"],
+    deps = [
+        ":logical_params",
+    ],  # Minimal deps, uses forward declarations
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "ast_nodes_impl",
+    srcs = ["src/ast_nodes/foo_ast_node.cpp"],
+    hdrs = ["src/ast_nodes/foo_ast_node.h"],
+    includes = ["include"],
+    deps = [
+        ":ast_node",
+        ":foo_ast_params",
+    ],
+    visibility = ["//visibility:public"],
+    # Template specialization doesn't require alwayslink
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "logical_node",
+    srcs = ["src/logical_node.cpp"],
+    hdrs = ["include/logical_node.h"],
+    includes = ["include"],
+    deps = [":logical_params"],  # Only depends on logical_params, not full ast_node
+    visibility = ["//visibility:public"],
+)
+
+cc_library(
+    name = "logical_nodes_impl",
+    srcs = ["src/logical_nodes/foo_logical_node.cpp"],
+    hdrs = ["src/logical_nodes/foo_logical_node.h"],
+    includes = ["include"],
+    deps = [":logical_node"],
+    visibility = ["//visibility:public"],
+    # Force linking to ensure static registration runs
+    alwayslink = 1,
+)
+
+# Main application
+cc_binary(
+    name = "toy_app",
+    srcs = ["src/main.cpp"],
+    deps = [
+        ":toy_lib",
+        ":parse_nodes_impl",
+        ":ast_nodes_impl",
+        ":logical_nodes_impl",
+    ],
+)
+
+# Unit tests
+cc_test(
+    name = "unit_tests",
+    srcs = ["tests/test_lib.cpp"],
+    deps = [
+        ":toy_lib",
+        "@googletest//:gtest_main",
+    ],
+)
+

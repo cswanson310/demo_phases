@@ -1,0 +1,21 @@
+# Bazel configuration file
+
+# Use C++20 standard for concepts support
+build --cxxopt=-std=c++20
+build --host_cxxopt=-std=c++20
+
+# Enable colors in output
+build --color=yes
+
+# Show test output on failure
+test --test_output=errors
+
+# Use a persistent worker for faster builds when available
+# Removed strict worker requirement to allow fallback strategies
+# build --strategy=CppCompile=worker
+# build --strategy=CppLink=worker
+
+# Enable platform-specific flags for macOS
+build:macos --cxxopt=-stdlib=libc++
+build:macos --linkopt=-stdlib=libc++
+
