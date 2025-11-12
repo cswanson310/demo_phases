@@ -5,9 +5,9 @@
 #include "logical_node.h"
 #include "node_transformer.h"
 #include "ast_to_logical_transformer.h"
-#include "src/ast_nodes/foo_ast_node.h"
+#include "src/ast_nodes/limit_ast_node.h"
 #include "src/ast_nodes/bar_ast_node.h"
-#include "src/parse_nodes/foo_node.h"
+#include "src/parse_nodes/limit_node.h"
 #include "src/parse_nodes/bar_node.h"
 
 void processNode(const std::string& nodeType, const std::string& inputData) {
@@ -40,10 +40,8 @@ int main() {
     std::cout << "║  Multi-Type Node Pipeline Demonstration   ║" << std::endl;
     std::cout << "╚════════════════════════════════════════════╝" << std::endl;
     
-    std::cout << "\n2 + 2 = " << add(2, 2) << std::endl;
-    
-    // Demonstrate Foo node (has int fooSpecificData)
-    processNode("foo", "my_input_data");
+    // Demonstrate Limit node (has single int limitValue)
+    processNode("limit", "1000");
     
     // Demonstrate Bar node (has vector<string>, bool, double)
     processNode("bar", "bar_input_data");
@@ -53,13 +51,14 @@ int main() {
     std::cout << "========================================" << std::endl;
     std::cout << "\n✅ Both node types processed successfully!" << std::endl;
     std::cout << "\nKey observations:" << std::endl;
-    std::cout << "  • FooNode: FooAstParams (int) → FooLogicalParams (costMultiplier)" << std::endl;
-    std::cout << "  • BarNode: BarAstParams (vector, bool, double) → BarLogicalParams (canUseIndex, rows, selectivity)" << std::endl;
-    std::cout << "  • Each node type has completely different AST AND Logical parameters" << std::endl;
+    std::cout << "  • LimitNode: Simple int parameter wrapped in type-safe structs" << std::endl;
+    std::cout << "    - LimitAstParams { limitValue: int }" << std::endl;
+    std::cout << "    - LimitLogicalParams { rowLimit: int }" << std::endl;
+    std::cout << "  • BarNode: Complex parameters with multiple types" << std::endl;
+    std::cout << "    - BarAstParams { items: vector<string>, flag: bool, cost: double }" << std::endl;
+    std::cout << "    - BarLogicalParams { canUseIndex: bool, rows: int, selectivity: double }" << std::endl;
     std::cout << "  • Type-specific params at every phase: Parse → AST → Logical" << std::endl;
-    std::cout << "  • node_transformer handles Parse→AST polymorphically" << std::endl;
-    std::cout << "  • ast_to_logical_transformer handles AST→Logical polymorphically" << std::endl;
-    std::cout << "  • Type-specific logic is preserved throughout the pipeline" << std::endl;
+    std::cout << "  • Transformers handle all node types polymorphically" << std::endl;
     std::cout << "  • No runtime type checks or casts needed!" << std::endl;
     
     return 0;

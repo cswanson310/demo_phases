@@ -17,9 +17,9 @@ cc_library(
 
 # Node-specific parameter libraries
 cc_library(
-    name = "foo_ast_params",
-    hdrs = ["src/ast_params/foo_ast_params.h"],
-    strip_include_prefix = "src/ast_params",
+    name = "limit_params",
+    hdrs = ["include/limit_params.h"],
+    deps = [":ast_params"],
     visibility = ["//visibility:public"],
 )
 
@@ -30,13 +30,6 @@ cc_library(
     visibility = ["//visibility:public"],
 )
 
-# Foo-specific logical parameters
-cc_library(
-    name = "foo_logical_params",
-    hdrs = ["src/logical_params/foo_logical_params.h"],
-    strip_include_prefix = "src/logical_params",
-    visibility = ["//visibility:public"],
-)
 
 # Bar-specific logical parameters
 cc_library(
@@ -66,15 +59,15 @@ cc_library(
 )
 
 cc_library(
-    name = "foo_parse_node",
-    srcs = ["src/parse_nodes/foo_node.cpp"],
-    hdrs = ["src/parse_nodes/foo_node.h"],
+    name = "limit_parse_node",
+    srcs = ["src/parse_nodes/limit_node.cpp"],
+    hdrs = ["src/parse_nodes/limit_node.h"],
     includes = ["include"],
     deps = [
         ":parse_node",
         ":ast_node",  # Needed for createAstNode() implementation
-        ":foo_ast_nodes",  # Needed for the template specialization
-        ":foo_ast_params",
+        ":limit_ast_nodes",  # Needed for the template specialization
+        ":limit_params",
     ],
     visibility = ["//visibility:public"],
     # alwayslink needed for runtime registration
@@ -100,7 +93,7 @@ cc_library(
 cc_library(
     name = "parse_nodes_impl",
     deps = [
-        ":foo_parse_node",
+        ":limit_parse_node",
         ":bar_parse_node",
     ],
     visibility = ["//visibility:public"],
@@ -118,16 +111,15 @@ cc_library(
 )
 
 cc_library(
-    name = "foo_ast_nodes",
-    srcs = ["src/ast_nodes/foo_ast_node.cpp"],
-    hdrs = ["src/ast_nodes/foo_ast_node.h"],
+    name = "limit_ast_nodes",
+    srcs = ["src/ast_nodes/limit_ast_node.cpp"],
+    hdrs = ["src/ast_nodes/limit_ast_node.h"],
     includes = ["include"],
     deps = [
         ":ast_node",
         ":logical_node",  # Needed for createLogicalNode() implementation
-        ":foo_ast_params",
-        ":foo_logical_params",  # Needed for logicalParams() return type
-        ":foo_logical_nodes",  # Needed for the template specialization in .cpp
+        ":limit_params",
+        ":limit_logical_nodes",  # Needed for the template specialization in .cpp
     ],
     visibility = ["//visibility:public"],
     alwayslink = 1,
@@ -153,7 +145,7 @@ cc_library(
 cc_library(
     name = "ast_nodes_impl",
     deps = [
-        ":foo_ast_nodes",
+        ":limit_ast_nodes",
         ":bar_ast_nodes",
     ],
     visibility = ["//visibility:public"],
@@ -195,13 +187,13 @@ cc_library(
 )
 
 cc_library(
-    name = "foo_logical_nodes",
-    srcs = ["src/logical_nodes/foo_logical_node.cpp"],
-    hdrs = ["src/logical_nodes/foo_logical_node.h"],
+    name = "limit_logical_nodes",
+    srcs = ["src/logical_nodes/limit_logical_node.cpp"],
+    hdrs = ["src/logical_nodes/limit_logical_node.h"],
     includes = ["include"],
     deps = [
         ":logical_node",
-        ":foo_logical_params",
+        ":limit_params",
     ],
     visibility = ["//visibility:public"],
     alwayslink = 1,
@@ -224,7 +216,7 @@ cc_library(
 cc_library(
     name = "logical_nodes_impl",
     deps = [
-        ":foo_logical_nodes",
+        ":limit_logical_nodes",
         ":bar_logical_nodes",
     ],
     visibility = ["//visibility:public"],
