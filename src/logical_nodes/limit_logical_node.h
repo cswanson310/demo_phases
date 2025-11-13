@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-struct LimitLogicalNode : public logical_node::Node {
+struct LimitLogicalNode : public LogicalNode {
     LimitParams params;
     
     LimitLogicalNode(const LimitParams& params)
@@ -24,11 +24,8 @@ struct LimitLogicalNode : public logical_node::Node {
     }
 };
 
-// Specialize the create function for LimitLogicalParams
-namespace logical_node {
-    template<>
-    inline std::unique_ptr<Node> create<LimitParams>(const LimitParams& params) {
-        return std::make_unique<LimitLogicalNode>(params);
-    }
+// Specialize the create function for LimitParams
+template<>
+inline std::unique_ptr<LogicalNode> createLogicalNode<LimitParams>(const LimitParams& params) {
+    return std::make_unique<LimitLogicalNode>(params);
 }
-

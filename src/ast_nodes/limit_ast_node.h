@@ -3,14 +3,12 @@
 #include "limit_params.h"
 #include <string>
 
-// Forward declare logical_node namespace
-namespace logical_node {
-    struct Node;
-    template<typename ParamType>
-    std::unique_ptr<Node> create(const ParamType& params);
-}
+// Forward declarations
+struct LogicalNode;
+template<typename ParamType>
+std::unique_ptr<LogicalNode> createLogicalNode(const ParamType& params);
 
-struct LimitAstNode : public ast_node::Node {
+struct LimitAstNode : public AstNode {
     LimitParams params;
     
     LimitAstNode(const LimitParams& params)
@@ -26,14 +24,11 @@ struct LimitAstNode : public ast_node::Node {
     }
     
     // Implement createLogicalNode - declared in .cpp to avoid circular deps
-    std::unique_ptr<logical_node::Node> createLogicalNode() const override;
+    std::unique_ptr<LogicalNode> createLogicalNode() const override;
 };
 
-// Specialize the create function for LimitAstParams
-namespace ast_node {
-    template<>
-    inline std::unique_ptr<Node> create<LimitParams>(const LimitParams& params) {
-        return std::make_unique<LimitAstNode>(params);
-    }
+// Specialize the create function for LimitParams
+template<>
+inline std::unique_ptr<AstNode> createAstNode<LimitParams>(const LimitParams& params) {
+    return std::make_unique<LimitAstNode>(params);
 }
-

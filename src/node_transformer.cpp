@@ -1,14 +1,8 @@
-#include "node_transformer.h"
-#include "parse_node.h"
-#include "ast_node.h"
-#include <stdexcept>
+#include "include/node_transformer.h"
+#include "include/parse_node.h"
+#include "include/ast_node.h"
 
-namespace node_transformer {
-
-std::unique_ptr<ast_node::Node> parseToAst(const parse_node::Node& parseNode) {
-    // This will use the virtual method we'll add to parse_node::Node
+std::unique_ptr<AstNode> parseToAst(const ParseNode& parseNode) {
+    // This relies on the virtual createAstNode() method implemented by each concrete parse node
     return parseNode.createAstNode();
 }
-
-} // namespace node_transformer
-

@@ -5,66 +5,42 @@
 #include <concepts>
 
 // Forward declarations
-namespace ast_node {
-    struct Node;
-}
-
-namespace parse_node {
-
-// Concept: A type that can be used as AST parameters
-template<typename T>
-concept AstParamType = std::default_initializable<T> && std::copyable<T>;
-
-// Concept: Defines what a parse node must look like
-template<typename T>
-concept ParseNodeType = requires(const T& node) {
-    // Must have a get_shape() method
-    { node.get_shape() } -> std::convertible_to<std::string>;
-    
-    // Must have an astParams() method that returns an AstParamType
-    { node.astParams() } -> AstParamType;
-    
-    // Must be derived from a base (for polymorphism if needed)
-    requires std::is_class_v<T>;
-};
+struct AstNode;
 
 // Base interface for parse nodes (can be used polymorphically)
-struct Node {
-    virtual ~Node() = default;
+struct ParseNode {
+    virtual ~ParseNode() = default;
     virtual std::string get_shape() const = 0;
     
     // Virtual method to create the corresponding AST node
     // Each concrete parse node implements this using its specific param type
-    virtual std::unique_ptr<ast_node::Node> createAstNode() const = 0;
+    virtual std::unique_ptr<AstNode> createAstNode() const = 0;
 };
 
 // CRTP base class for parse nodes with type-safe params
 template<typename Derived, typename ParamType>
-    requires AstParamType<ParamType>
-struct TypedNode : Node {
+struct TypedParseNode : ParseNode {
     using AstParams = ParamType;
     
     // Derived must implement this
     virtual ParamType astParams() const = 0;
     
-    // createAstNode() is inherited from Node base class
+    // createAstNode() is inherited from ParseNode base class
     // Derived classes should override it
 };
 
 // Factory registration for polymorphic usage
-using Parser = std::function<std::unique_ptr<Node>(std::string)>;
-void registerNode(std::string name, Parser parser);
-std::unique_ptr<Node> createFromInput(std::string name, std::string argString);
+using ParseNodeFactory = std::function<std::unique_ptr<ParseNode>(std::string)>;
+void registerParseNode(std::string name, ParseNodeFactory factory);
+std::unique_ptr<ParseNode> createParseNodeFromInput(std::string name, std::string argString);
 
 // Helper class for automatic registration
-class NodeRegistrar {
+class ParseNodeRegistrar {
 public:
-    NodeRegistrar(std::string name, Parser parser) {
-        registerNode(name, parser);
+    ParseNodeRegistrar(std::string name, ParseNodeFactory factory) {
+        registerParseNode(name, factory);
     }
 };
 
-#define REGISTER_NODE(name, parser) \
-    static ::parse_node::NodeRegistrar _registrar_##name(#name, parser)
-
-} // namespace parse_node
+#define REGISTER_PARSE_NODE(name, factory) \
+    static ParseNodeRegistrar _parse_registrar_##name(#name, factory)

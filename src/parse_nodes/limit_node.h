@@ -3,14 +3,12 @@
 #include "limit_params.h"
 #include <string>
 
-// Forward declarations for createAstNode
-namespace ast_node {
-    struct Node;
-    template<typename ParamType>
-    std::unique_ptr<Node> create(const ParamType& params);
-}
+// Forward declarations
+struct AstNode;
+template<typename ParamType>
+std::unique_ptr<AstNode> createAstNode(const ParamType& params);
 
-struct LimitNode : public parse_node::TypedNode<LimitNode, LimitParams> {
+struct LimitNode : public TypedParseNode<LimitNode, LimitParams> {
     int limitValue;
     
     LimitNode(const std::string& arg) : limitValue(std::stoi(arg)) {}
@@ -25,6 +23,5 @@ struct LimitNode : public parse_node::TypedNode<LimitNode, LimitParams> {
     }
     
     // Implementation in .cpp to avoid template instantiation order issues
-    std::unique_ptr<ast_node::Node> createAstNode() const override;
+    std::unique_ptr<AstNode> createAstNode() const override;
 };
-

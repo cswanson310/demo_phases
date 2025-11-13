@@ -1,29 +1,23 @@
+#include "parse_node.h"
 #include <map>
 #include <iostream>
-#include "include/parse_node.h"
 
-namespace parse_node {
-
-namespace {
-std::map<std::string, Parser>& getParserMap() {
-    // Use a function-local static to ensure initialization before use
-    static std::map<std::string, Parser> parserMap;
+// Function-local static to guarantee initialization order
+std::map<std::string, ParseNodeFactory>& getParserMap() {
+    static std::map<std::string, ParseNodeFactory> parserMap;
     return parserMap;
 }
-}
 
-void registerNode(std::string name, Parser parser) {
+void registerParseNode(std::string name, ParseNodeFactory factory) {
     std::cout << "[Startup] Registering node type: " << name << std::endl;
-    getParserMap().emplace(name, parser);
+    getParserMap().emplace(name, factory);
 }
 
-std::unique_ptr<Node> createFromInput(std::string name, std::string argString) {
-    auto& map = getParserMap();
-    auto it = map.find(name);
-    if (it == map.end()) {
-        throw std::runtime_error("Unknown node type: " + name);
+std::unique_ptr<ParseNode> createParseNodeFromInput(std::string name, std::string argString) {
+    auto& parserMap = getParserMap();
+    auto it = parserMap.find(name);
+    if (it == parserMap.end()) {
+        throw std::runtime_error("Unknown parse node type: " + name);
     }
     return it->second(argString);
-}
-
 }
