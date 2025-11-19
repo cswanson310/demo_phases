@@ -27,8 +27,5 @@ struct LimitAstNode : public AstNode {
     std::unique_ptr<LogicalNode> createLogicalNode() const override;
 };
 
-// Specialize the create function for LimitParams
-template<>
-inline std::unique_ptr<AstNode> createAstNode<LimitParams>(const LimitParams& params) {
-    return std::make_unique<LimitAstNode>(params);
-}
+template <>
+std::unique_ptr<AstNode> createAstNode(const LimitParams& params);

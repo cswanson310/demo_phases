@@ -3,30 +3,18 @@
 #include <functional>
 #include <memory>
 #include <concepts>
+#include "ast_params.h"
 
 // Forward declarations
 struct AstNode;
 
-// Base interface for parse nodes (can be used polymorphically)
+// Base class for parse nodes
 struct ParseNode {
     virtual ~ParseNode() = default;
     virtual std::string get_shape() const = 0;
     
-    // Virtual method to create the corresponding AST node
-    // Each concrete parse node implements this using its specific param type
-    virtual std::unique_ptr<AstNode> createAstNode() const = 0;
-};
-
-// CRTP base class for parse nodes with type-safe params
-template<typename Derived, typename ParamType>
-struct TypedParseNode : ParseNode {
-    using AstParams = ParamType;
-    
-    // Derived must implement this
-    virtual ParamType astParams() const = 0;
-    
-    // createAstNode() is inherited from ParseNode base class
-    // Derived classes should override it
+    // Returns parameters for creating the corresponding AstNode
+    virtual AstParams astParams() const = 0;
 };
 
 // Factory registration for polymorphic usage

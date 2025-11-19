@@ -26,9 +26,3 @@ struct SetMetadataAstNode : public AstNode {
     // Implement createLogicalNode - declared in .cpp to avoid circular deps
     std::unique_ptr<LogicalNode> createLogicalNode() const override;
 };
-
-// Specialize the create function for SetMetadataParams
-template<>
-inline std::unique_ptr<AstNode> createAstNode<SetMetadataParams>(const SetMetadataParams& params) {
-    return std::make_unique<SetMetadataAstNode>(params);
-}

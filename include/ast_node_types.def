@@ -1,0 +1,18 @@
+// X-Macro definition file for all AST node types
+// Each entry maps: ParamType -> AstNodeType
+// 
+// Usage: Define AST_NODE_TYPE(ParamType, AstNodeType) before including this file
+// 
+// To add a new node type, simply add one line here:
+//   AST_NODE_TYPE(YourParams, YourAstNode)
+
+#ifndef AST_NODE_TYPE
+#error "AST_NODE_TYPE must be defined before including ast_node_types.def"
+#endif
+
+AST_NODE_TYPE(LimitParams, LimitAstNode)
+AST_NODE_TYPE(SortParams, SortAstNode)
+AST_NODE_TYPE(SetMetadataParams, SetMetadataAstNode)
+
+#undef AST_NODE_TYPE
+

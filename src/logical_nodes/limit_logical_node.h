@@ -24,8 +24,8 @@ struct LimitLogicalNode : public LogicalNode {
     }
 };
 
+
 // Specialize the create function for LimitParams
 template<>
-inline std::unique_ptr<LogicalNode> createLogicalNode<LimitParams>(const LimitParams& params) {
-    return std::make_unique<LimitLogicalNode>(params);
-}
+std::unique_ptr<LogicalNode> createLogicalNode<LimitParams>(const LimitParams& params);
+

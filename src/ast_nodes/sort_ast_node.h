@@ -30,9 +30,3 @@ struct SortAstNode : public AstNode {
     // Implement createLogicalNode - declared in .cpp to avoid circular deps
     std::unique_ptr<LogicalNode> createLogicalNode() const override;
 };
-
-// Specialize the create function for SortParams
-template<>
-inline std::unique_ptr<AstNode> createAstNode<SortParams>(const SortParams& params) {
-    return std::make_unique<SortAstNode>(params);
-}

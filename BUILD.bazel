@@ -1,10 +1,26 @@
 """Root BUILD file for toy_cpp."""
 
-# Parameter struct libraries (pure headers, no dependencies)
+# Base parameter type
+cc_library(
+    name = "param_type",
+    hdrs = ["include/param_type.h"],
+    includes = ["include"],
+    visibility = ["//visibility:public"],
+)
+
+# Parameter struct libraries (aggregates all param types in a variant)
 cc_library(
     name = "ast_params",
-    hdrs = ["include/ast_params.h"],
+    hdrs = [
+        "include/ast_params.h",
+        "include/ast_node_types.def",  # X-macro definition file
+    ],
     includes = ["include"],
+    deps = [
+        ":limit_params",
+        ":sort_params",
+        ":set_metadata_params",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -52,7 +68,7 @@ cc_library(
     srcs = ["src/parse_node.cpp"],
     hdrs = ["include/parse_node.h"],
     includes = ["include"],
-    deps = [],  # Now uses concepts, forward declarations only
+    deps = [":ast_params"],  # Now depends on AstParams variant
     visibility = ["//visibility:public"],
 )
 
@@ -63,8 +79,6 @@ cc_library(
     includes = ["include"],
     deps = [
         ":parse_node",
-        ":ast_node",  # Needed for createAstNode() implementation
-        ":limit_ast_nodes",  # Needed for the template specialization
         ":limit_params",
     ],
     visibility = ["//visibility:public"],
@@ -79,8 +93,6 @@ cc_library(
     includes = ["include"],
     deps = [
         ":parse_node",
-        ":ast_node",
-        ":sort_ast_nodes",
         ":sort_params",
     ],
     visibility = ["//visibility:public"],
@@ -94,8 +106,6 @@ cc_library(
     includes = ["include"],
     deps = [
         ":parse_node",
-        ":ast_node",
-        ":set_metadata_ast_nodes",
         ":set_metadata_params",
     ],
     visibility = ["//visibility:public"],
@@ -198,6 +208,11 @@ cc_library(
     deps = [
         ":parse_node",
         ":ast_node",
+        ":param_type",
+        ":ast_params",
+        ":limit_ast_nodes",
+        ":sort_ast_nodes",
+        ":set_metadata_ast_nodes",
     ],
     visibility = ["//visibility:public"],
 )

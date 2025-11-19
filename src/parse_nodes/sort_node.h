@@ -1,14 +1,11 @@
 #pragma once
-#include "parse_node.h"
-#include "sort_params.h"
 #include <string>
+#include <memory>
+#include <vector>
+#include "parse_node.h"
+#include "src/ast_params/sort_params.h"
 
-// Forward declarations
-struct AstNode;
-template<typename ParamType>
-std::unique_ptr<AstNode> createAstNode(const ParamType& params);
-
-struct SortNode : public TypedParseNode<SortNode, SortParams> {
+struct SortNode : public ParseNode {
     std::vector<std::string> keys;
     bool asc;
     
@@ -28,13 +25,10 @@ struct SortNode : public TypedParseNode<SortNode, SortParams> {
     }
     
     // Returns type-specific AST parameters
-    SortParams astParams() const override {
-        return SortParams{
-            .sortKeys = keys,
-            .ascending = asc
-        };
+    AstParams astParams() const override {
+        SortParams params;
+        params.sortKeys = keys;
+        params.ascending = asc;
+        return params;
     }
-    
-    // Implementation in .cpp to avoid template instantiation order issues
-    std::unique_ptr<AstNode> createAstNode() const override;
 };

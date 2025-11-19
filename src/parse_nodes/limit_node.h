@@ -1,14 +1,11 @@
 #pragma once
-#include "parse_node.h"
-#include "limit_params.h"
+
 #include <string>
+#include <memory>
+#include "parse_node.h"
+#include "src/ast_params/limit_params.h"
 
-// Forward declarations
-struct AstNode;
-template<typename ParamType>
-std::unique_ptr<AstNode> createAstNode(const ParamType& params);
-
-struct LimitNode : public TypedParseNode<LimitNode, LimitParams> {
+struct LimitNode : public ParseNode {
     int limitValue;
     
     LimitNode(const std::string& arg) : limitValue(std::stoi(arg)) {}
@@ -18,10 +15,9 @@ struct LimitNode : public TypedParseNode<LimitNode, LimitParams> {
     }
     
     // Returns type-specific AST parameters
-    LimitParams astParams() const override {
-        return {.limitValue=limitValue};
+    AstParams astParams() const override {
+        LimitParams params;
+        params.limitValue = limitValue;
+        return params;
     }
-    
-    // Implementation in .cpp to avoid template instantiation order issues
-    std::unique_ptr<AstNode> createAstNode() const override;
 };
